@@ -1,0 +1,38 @@
+{
+    "models": [
+        {
+            "title": "LocalAI",
+            "provider": "openai",
+            "model": "deepseek-coder",
+            "apiBase": "http://localhost:11434/v1"
+        }
+    ],
+    "contextProviders": [
+        {
+            "name": "http",
+            "params": {
+                "url": "http://localhost:8000/query",
+                "title": "Local RAG",
+                "description": "Local code retrieval"
+            }
+        }
+    ],
+    "customCommands": [
+        {
+            "name": "refactor-feature",
+            "prompt": "Refactor the selected feature to use Composition API",
+            "action": {
+                "type": "terminal",
+                "command": "./run_agent.sh refactor_feature ${file}"
+            }
+        },
+        {
+            "name": "generate-from-figma",
+            "prompt": "Generate component from Figma URL",
+            "action": {
+                "type": "terminal",
+                "command": "./run_agent.sh generate_from_figma ${input:figma_url}"
+            }
+        }
+    ]
+}
