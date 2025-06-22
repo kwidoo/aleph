@@ -6,6 +6,7 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from chromadb.utils.embedding_functions import OllamaEmbeddingFunction
 import argparse
+from knowledge_manager import knowledge_hub
 
 def index_codebase(include_docs=None, include_external=None, reindex=False):
     """
@@ -71,6 +72,9 @@ def index_codebase(include_docs=None, include_external=None, reindex=False):
         metadatas=[doc.metadata for doc in chunks],
         ids=[f"id_{i}" for i in range(len(chunks))]
     )
+
+    # Index resources using KnowledgeHub
+    knowledge_hub.index_resource("~/vue-project/src", "code")
 
     print(f"Indexed {len(chunks)} code/documentation chunks")
 

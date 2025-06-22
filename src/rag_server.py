@@ -5,6 +5,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from fastapi import FastAPI, Request
 import uvicorn
 import os
+from knowledge_manager import knowledge_hub
+from debug_agent import DebugAgent
+from security_agent import SecurityAgent
 
 app = FastAPI()
 
@@ -19,6 +22,10 @@ collection = client.get_or_create_collection(
     "codebase",
     embedding_function=embedding_fn
 )
+
+# Initialize agents
+debug_agent = DebugAgent()
+security_agent = SecurityAgent()
 
 def index_documents():
     """Index documents from /app directory"""
@@ -84,7 +91,13 @@ async def startup_event():
     if collection.count() == 0:
         index_documents()
 
+def initialize_knowledge_hub():
+    """Initialize Knowledge Hub on server startup"""
+    knowledge_hub.index_resource("https://vuejs.org/guide", "markdown")
+    knowledge_hub.index_resource("figma-designs", "designs")
+
 if __name__ == "__main__":
     index_documents()
+    initialize_knowledge_hub()
     print("RAG server ready at http://localhost:8001")
     uvicorn.run(app, host="0.0.0.0", port=8001)
