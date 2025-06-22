@@ -433,6 +433,67 @@ class PerformanceAgent:
 
         print(f"Responsive design test results saved to {results_file}")
 
+    async def cross_device_testing(self, component_name, devices):
+        """Perform cross-device testing for a Vue component"""
+        print(f"Performing cross-device testing for: {component_name}")
+
+        results = {}
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+
+            for device in devices:
+                context = browser.new_context(**device)
+                page = context.new_page()
+
+                component_file = f"src/components/{component_name}.vue"
+                page.goto(f"file://{os.path.abspath(component_file)}")
+
+                # Capture screenshot for visual validation
+                screenshot_path = os.path.join(self.results_dir, f"{component_name}_{device['name']}.png")
+                page.screenshot(path=screenshot_path)
+
+                # Collect performance metrics
+                metrics = page.evaluate("() => ({
+                    layoutShift: performance.getEntriesByType('layout-shift'),
+                    paintTiming: performance.getEntriesByType('paint')
+                })")
+
+                results[device['name']] = metrics
+
+            browser.close()
+
+        # Save results to a JSON file
+        results_file = os.path.join(self.results_dir, f"{component_name}_cross_device_results.json")
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=4)
+
+        print(f"Cross-device test results saved to {results_file}")
+
+    async def accessibility_checks(self, component_name):
+        """Perform accessibility checks for a Vue component"""
+        print(f"Performing accessibility checks for: {component_name}")
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            context = browser.new_context()
+            page = context.new_page()
+
+            component_file = f"src/components/{component_name}.vue"
+            page.goto(f"file://{os.path.abspath(component_file)}")
+
+            # Check for accessibility violations using axe-core
+            axe_script = "https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.4.1/axe.min.js"
+            page.add_script_tag(url=axe_script)
+            violations = page.evaluate("() => new Promise(resolve => axe.run((err, results) => resolve(results.violations)))")
+
+            # Save violations to a JSON file
+            results_file = os.path.join(self.results_dir, f"{component_name}_accessibility_violations.json")
+            with open(results_file, 'w') as f:
+                json.dump(violations, f, indent=4)
+
+            print(f"Accessibility violations saved to {results_file}")
+
 if __name__ == "__main__":
     import sys
 
