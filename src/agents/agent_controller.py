@@ -1,5 +1,6 @@
 from continue.api import Continue
 from continue.plugins import CodebaseContext
+from verification.orchestrator import VerificationPipeline
 import subprocess
 import os
 import requests
@@ -11,6 +12,7 @@ class AgentController:
         """Initialize agent controller with Continue API"""
         self.c = Continue()
         self.code_context = CodebaseContext(n_retrieve=10)
+        self.verifier = VerificationPipeline()
 
     async def refactor_component(self, component_path):
         """Refactor Vue component to Composition API"""
@@ -105,6 +107,45 @@ class AgentController:
         await self.run_command("aws s3 sync dist/ s3://my-app-bucket")
         await self.c.commit("Production deployment", push=True)
         print("CI/CD pipeline completed successfully!")
+
+    async def generate_verified_component(self, requirements):
+        """Generate and verify component"""
+        # Step 1: Generate initial version
+        component_code = await self.generate_component(
+            requirements["name"],
+            requirements["props"],
+            requirements.get("styles")
+        )
+
+        # Step 2: Run verification pipeline
+        context = self.knowledge.query_codebase(
+            f"Vue components similar to {requirements['name']}"
+        )
+
+        result = self.verifier.iterative_correction(
+            component_code,
+            requirements,
+            context
+        )
+
+        if result["verified"]:
+            return result["code"]
+        else:
+            # Fallback to human review
+            return self.human_review_fallback(result)
+
+    def human_review_fallback(self, verification_result):
+        """Present for human review when verification fails"""
+        print("⚠️ AI verification failed. Please review manually:")
+        print(f"Verification Score: {verification_result['report']['verification_score']:.2f}")
+        print("\nVerification Report:")
+        print(json.dumps(verification_result["report"], indent=2))
+        print("\nGenerated Code:")
+        print(verification_result["code"])
+
+        # Create task in project management
+        self.create_review_task(verification_result)
+        return verification_result["code"]
 
 class DesignToComponentAgent:
     def __init__(self):
