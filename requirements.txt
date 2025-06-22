@@ -1,0 +1,29 @@
+# Core RAG components
+chromadb>=0.4.18
+langchain>=0.1.0
+langchain-community>=0.0.16
+fastapi>=0.104.0
+uvicorn>=0.24.0
+sentence-transformers>=2.2.2
+
+# Document processing
+pypdf2>=3.0.0
+beautifulsoup4>=4.12.2
+
+# Image processing
+pillow>=10.0.0
+
+# HTTP and API
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# AI and embeddings
+continue>=0.0.7
+tree-sitter>=0.20.1
+
+# Testing and development
+pytest>=7.4.3
+pytest-asyncio>=0.21.1
+
+# For production
+gunicorn>=21.2.0

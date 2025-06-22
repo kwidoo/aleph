@@ -13,6 +13,7 @@ class AgentController:
         self.c = Continue()
         self.code_context = CodebaseContext(n_retrieve=10)
         self.verifier = VerificationPipeline()
+        self.git_agents = {}  # repo_url: GitAgent
 
     async def refactor_component(self, component_path):
         """Refactor Vue component to Composition API"""
@@ -146,6 +147,30 @@ class AgentController:
         # Create task in project management
         self.create_review_task(verification_result)
         return verification_result["code"]
+
+    def get_git_agent(self, repo_url):
+        """Get or create Git agent for repository"""
+        if repo_url not in self.git_agents:
+            self.git_agents[repo_url] = GitAgent(repo_url)
+        return self.git_agents[repo_url]
+
+    async def execute_task(self, task_description, repo_path=None):
+        """
+        Execute development task with Git integration
+        repo_path: Local path or Git URL
+        """
+        if repo_path and isinstance(repo_path, str) and repo_path.startswith("http"):
+            # Handle Git URL
+            git_agent = self.get_git_agent(repo_path)
+            return git_agent.ai_development_workflow(task_description)
+
+        # Existing local development workflow
+        # ...existing implementation...
+
+    async def repository_task(self, repo_url, task_description):
+        """Public method for repository tasks"""
+        git_agent = self.get_git_agent(repo_url)
+        return git_agent.ai_development_workflow(task_description)
 
 class DesignToComponentAgent:
     def __init__(self):
