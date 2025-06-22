@@ -134,3 +134,22 @@ class VerificationPipeline:
             "attempts": max_attempts,
             "report": report
         }
+
+    def run_accessibility_pipeline(self, component_name):
+        """Run the accessibility pipeline for a component"""
+        from ..agents.accessibility_agent import AccessibilityAgent
+        from .dashboard import VerificationDashboard
+
+        agent = AccessibilityAgent()
+        dashboard = VerificationDashboard()
+
+        # Step 1: Run accessibility audit
+        audit_results = agent.audit_component(component_name)
+
+        # Step 2: Generate accessibility report
+        report = agent.generate_accessibility_report(component_name, audit_results)
+
+        # Step 3: Display insights in the dashboard
+        dashboard.display_accessibility_insights(report)
+
+        return report

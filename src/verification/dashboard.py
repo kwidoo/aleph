@@ -46,3 +46,37 @@ class VerificationDashboard:
         if "score" in result:
             return f"Score: [yellow]{result['score']:.2f}[/yellow]"
         return "No details available"
+
+    def display_accessibility_insights(self, insights):
+        """Display accessibility insights in the dashboard"""
+        console = rich.get_console()
+
+        # Header
+        console.print(Panel(
+            f"[bold]Accessibility Insights[/bold]\n"
+            f"Overall Score: [yellow]{insights['overall_score']:.2f}/1.0[/yellow]",
+            expand=False
+        ))
+
+        # Metrics Table
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Metric")
+        table.add_column("Value")
+
+        for metric, value in insights["metrics"].items():
+            table.add_row(metric, str(value))
+
+        console.print(table)
+
+        # Suggestions
+        console.print("\n[bold]Suggestions:[/bold]")
+        for suggestion in insights["suggestions"]:
+            console.print(f"- {suggestion}")
+
+        # Issues
+        if insights["issues"]:
+            console.print("\n[bold red]Issues Detected:[/bold red]")
+            for issue in insights["issues"]:
+                console.print(f"- {issue}")
+        else:
+            console.print("\n[green]No issues detected![/green]")

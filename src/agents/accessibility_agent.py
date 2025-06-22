@@ -194,6 +194,50 @@ class AccessibilityAgent:
         report = await self.c.c.complete(prompt, max_tokens=1000)
         return report
 
+    async def generate_accessibility_report(self, component_name, audit_results):
+        """Generate a detailed accessibility report"""
+        print(f"Generating accessibility report for {component_name}")
+
+        # Metrics
+        metrics = {
+            "violations_count": len(audit_results.get("violations", [])),
+            "passes_count": len(audit_results.get("passes", [])),
+            "incomplete_count": len(audit_results.get("incomplete", []))
+        }
+
+        # Suggestions
+        suggestions = [
+            "Ensure all interactive elements have ARIA roles.",
+            "Use semantic HTML wherever possible.",
+            "Provide descriptive labels for all form elements."
+        ]
+
+        # Issues
+        issues = [
+            f"{violation['id']}: {violation['description']}"
+            for violation in audit_results.get("violations", [])
+        ]
+
+        # Overall score (placeholder logic)
+        overall_score = max(0, 1 - (metrics["violations_count"] * 0.1))
+
+        # Report structure
+        report = {
+            "component_name": component_name,
+            "metrics": metrics,
+            "suggestions": suggestions,
+            "issues": issues,
+            "overall_score": overall_score
+        }
+
+        # Export report to JSON
+        report_path = os.path.join(self.results_dir, f"{component_name}_accessibility_report.json")
+        with open(report_path, "w") as f:
+            json.dump(report, f, indent=2)
+
+        print(f"Accessibility report generated: {report_path}")
+        return report
+
     async def fix_accessibility_issues(self, component_name, audit_results=None):
         """Automatically fix accessibility issues"""
         print(f"Fixing accessibility issues for {component_name}")
@@ -359,6 +403,38 @@ class AccessibilityAgent:
             "components_with_issues": len(components_with_issues),
             "results": results
         }
+
+    async def suggest_aria_attributes(self, component_name):
+        """Suggest ARIA attributes for a component"""
+        print(f"Suggesting ARIA attributes for {component_name}")
+
+        # Analyze component structure and functionality
+        # Placeholder logic for ARIA suggestions
+        aria_suggestions = {
+            "role": "button",
+            "aria-label": "Descriptive label for the component",
+            "aria-hidden": "false"
+        }
+
+        print(f"ARIA suggestions for {component_name}: {aria_suggestions}")
+        return aria_suggestions
+
+    async def validate_wcag_compliance(self, component_name, level="AA"):
+        """Validate WCAG compliance for a component"""
+        print(f"Validating WCAG {level} compliance for {component_name}")
+
+        if level not in ["A", "AA", "AAA"]:
+            print(f"Unsupported WCAG level: {level}. Defaulting to AA.")
+            level = "AA"
+
+        # Placeholder logic for WCAG validation
+        compliance_results = {
+            "compliant": True,
+            "issues": []
+        }
+
+        print(f"WCAG {level} compliance results for {component_name}: {compliance_results}")
+        return compliance_results
 
 if __name__ == "__main__":
     import sys
