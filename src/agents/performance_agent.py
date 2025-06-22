@@ -395,36 +395,76 @@ class PerformanceAgent:
         report = await self.c.c.complete(prompt, max_tokens=700)
         return report
 
+    async def test_responsive_design(self, component_name, screen_sizes=None):
+        """Test component responsiveness across various screen sizes"""
+        if screen_sizes is None:
+            screen_sizes = [
+                {'width': 320, 'height': 480},  # Mobile portrait
+                {'width': 480, 'height': 320},  # Mobile landscape
+                {'width': 768, 'height': 1024}, # Tablet portrait
+                {'width': 1024, 'height': 768} # Tablet landscape
+            ]
+
+        print(f"Testing responsiveness for component: {component_name}")
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            context = browser.new_context()
+
+            for size in screen_sizes:
+                page = context.new_page()
+                page.set_viewport_size(size)
+
+                component_file = f"src/components/{component_name}.vue"
+
+                test_html = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta charset=\"UTF-8\">
+                  <title>{component_name} Responsive Test</title>
+                  <script src=\"https://unpkg.com/vue@3/dist/vue.global.js\"></script>
+                </head>
+                <body>
+                  <div id=\"app\"></div>
+                  <script type=\"module\">
+                    import {{ createApp }} from 'vue';
+                    import Component from './{component_file}';
+
+                    createApp(Component).mount('#app');
+                  </script>
+                </body>
+                </html>
+                """
+
+                page.set_content(test_html)
+                time.sleep(2)  # Allow time for rendering
+
+                screenshot_path = os.path.join(self.results_dir, f"{component_name}_{size['width']}x{size['height']}.png")
+                page.screenshot(path=screenshot_path)
+                print(f"Saved screenshot for {size['width']}x{size['height']} to {screenshot_path}")
+
+            browser.close()
+
 if __name__ == "__main__":
     import sys
 
-    async def main():
-        agent = PerformanceAgent()
+    if len(sys.argv) < 3:
+        print("Usage: python performance_agent.py [command] [component_name]")
+        print("Commands: benchmark, optimize, responsive")
+        sys.exit(1)
 
-        if len(sys.argv) < 2:
-            print("Usage: python performance_agent.py [command] [component_name]")
-            sys.exit(1)
+    command = sys.argv[1]
+    component_name = sys.argv[2]
 
-        command = sys.argv[1]
+    agent = PerformanceAgent()
 
-        if command == "benchmark":
-            if len(sys.argv) < 3:
-                print("Usage: python performance_agent.py benchmark [component_name]")
-                sys.exit(1)
-
-            result = await agent.benchmark_component(sys.argv[2])
-            print(result["report"])
-
-        elif command == "optimize":
-            if len(sys.argv) < 3:
-                print("Usage: python performance_agent.py optimize [component_name]")
-                sys.exit(1)
-
-            result = await agent.optimize_component(sys.argv[2])
-            print(result["report"])
-
-        else:
-            print(f"Unknown command: {command}")
-            sys.exit(1)
-
-    asyncio.run(main())
+    if command == "benchmark":
+        asyncio.run(agent.benchmark_component(component_name))
+    elif command == "optimize":
+        print("Optimization not yet implemented.")
+    elif command == "responsive":
+        asyncio.run(agent.test_responsive_design(component_name))
+    else:
+        print(f"Unknown command: {command}")
+        print("Commands: benchmark, optimize, responsive")
