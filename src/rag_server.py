@@ -62,6 +62,21 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
 
+@app.get("/task-logs")
+def get_task_logs():
+    """Fetch task logs."""
+    return {"logs": ["Task 1 completed", "Task 2 in progress"]}
+
+@app.get("/performance-metrics")
+def get_performance_metrics():
+    """Fetch performance metrics."""
+    return {"metrics": {"CPU": "75%", "Memory": "60%"}}
+
+@app.get("/audit-results")
+def get_audit_results():
+    """Fetch audit results."""
+    return {"results": ["Audit 1 passed", "Audit 2 failed"]}
+
 @app.on_event("startup")
 async def startup_event():
     """Run on startup"""
