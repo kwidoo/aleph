@@ -395,56 +395,43 @@ class PerformanceAgent:
         report = await self.c.c.complete(prompt, max_tokens=700)
         return report
 
-    async def test_responsive_design(self, component_name, screen_sizes=None):
-        """Test component responsiveness across various screen sizes"""
-        if screen_sizes is None:
-            screen_sizes = [
-                {'width': 320, 'height': 480},  # Mobile portrait
-                {'width': 480, 'height': 320},  # Mobile landscape
-                {'width': 768, 'height': 1024}, # Tablet portrait
-                {'width': 1024, 'height': 768} # Tablet landscape
-            ]
+    async def test_responsive_design(self, component_name, breakpoints):
+        """Test responsive design for a Vue component across breakpoints"""
+        print(f"Testing responsive design for: {component_name}")
 
-        print(f"Testing responsiveness for component: {component_name}")
+        results = {}
 
         with sync_playwright() as p:
             browser = p.chromium.launch()
             context = browser.new_context()
 
-            for size in screen_sizes:
+            for breakpoint in breakpoints:
                 page = context.new_page()
-                page.set_viewport_size(size)
+                page.set_viewport_size(breakpoint)
 
                 component_file = f"src/components/{component_name}.vue"
+                page.goto(f"file://{os.path.abspath(component_file)}")
 
-                test_html = f"""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <meta charset=\"UTF-8\">
-                  <title>{component_name} Responsive Test</title>
-                  <script src=\"https://unpkg.com/vue@3/dist/vue.global.js\"></script>
-                </head>
-                <body>
-                  <div id=\"app\"></div>
-                  <script type=\"module\">
-                    import {{ createApp }} from 'vue';
-                    import Component from './{component_file}';
-
-                    createApp(Component).mount('#app');
-                  </script>
-                </body>
-                </html>
-                """
-
-                page.set_content(test_html)
-                time.sleep(2)  # Allow time for rendering
-
-                screenshot_path = os.path.join(self.results_dir, f"{component_name}_{size['width']}x{size['height']}.png")
+                # Capture screenshot for visual validation
+                screenshot_path = os.path.join(self.results_dir, f"{component_name}_{breakpoint['width']}x{breakpoint['height']}.png")
                 page.screenshot(path=screenshot_path)
-                print(f"Saved screenshot for {size['width']}x{size['height']} to {screenshot_path}")
+
+                # Collect performance metrics
+                metrics = page.evaluate("() => ({
+                    layoutShift: performance.getEntriesByType('layout-shift'),
+                    paintTiming: performance.getEntriesByType('paint')
+                })")
+
+                results[f"{breakpoint['width']}x{breakpoint['height']}"] = metrics
 
             browser.close()
+
+        # Save results to a JSON file
+        results_file = os.path.join(self.results_dir, f"{component_name}_responsive_results.json")
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=4)
+
+        print(f"Responsive design test results saved to {results_file}")
 
 if __name__ == "__main__":
     import sys
