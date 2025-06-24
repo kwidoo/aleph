@@ -88,6 +88,12 @@ docker compose up -d
 
 # Generate from Figma design
 ./run_agent.sh generate_from_figma https://figma.com/file/12345
+
+# New code generation helpers
+./run_agent.sh generate_vue_component FancyButton '{"label": "string"}'
+./run_agent.sh generate_pinia_store cart '{"items": []}'
+./run_agent.sh generate_api_service userService '[{"method":"get","url":"/users"}]'
+./run_agent.sh configure_router '[{"path":"/about","component":"AboutView"}]'
 ```
 
 ### Run Tests and Optimizations
