@@ -34,17 +34,17 @@ fi
 # Download optimized models
 echo "Downloading optimized models..."
 echo "Deepseek Coder 6.7B"
-ollama pull deepseek-coder:6.7b-q5_K_M
+ollama pull deepseek-coder:6.7b-base-q5_K_M
 echo "Nomic embed text"
 ollama pull nomic-embed-text
 echo "Llama 3.1 8B"
 ollama pull llama3.1:8b
 
 # Setup Python virtual environment
-if [ ! -d "$HOME/.venv" ]; then
-  python3.11 -m venv "$HOME/.venv"
+if [ ! -d "$PWD/.venv" ]; then
+  python3.11 -m venv "$PWD/.venv"
 fi
-source "$HOME/.venv/bin/activate"
+source "$PWD/.venv/bin/activate"
 
 # Install Python dependencies
 pip install --upgrade pip
