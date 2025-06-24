@@ -24,6 +24,12 @@ else
   echo "Ollama already installed"
 fi
 
+# Ensure Ollama server is running for model downloads
+if ! pgrep -f "ollama" >/dev/null; then
+  ollama serve > /dev/null 2>&1 &
+  sleep 5
+fi
+
 # Download optimized models
 ollama pull deepseek-coder:6.7b-q5_k_m
 ollama pull nomic-embed-text
