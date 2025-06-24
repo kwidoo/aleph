@@ -11,7 +11,8 @@ class VisualRegressionAgent:
     def __init__(self):
         """Initialize visual regression testing agent"""
         self.c = AgentController()
-        self.screenshot_dir = os.path.expanduser("~/vue-project/tests/screenshots")
+        self.project_dir = os.getenv("VUE_PROJECT_DIR", os.path.expanduser("~/vue-project"))
+        self.screenshot_dir = os.path.join(self.project_dir, "tests", "screenshots")
         self.baseline_dir = os.path.join(self.screenshot_dir, "baseline")
         self.current_dir = os.path.join(self.screenshot_dir, "current")
         self.diff_dir = os.path.join(self.screenshot_dir, "diff")
@@ -231,7 +232,7 @@ class VisualRegressionAgent:
         print("Running visual regression test pipeline")
 
         # Find all Vue components
-        component_dir = os.path.expanduser("~/vue-project/src/components")
+        component_dir = os.path.join(self.project_dir, "src", "components")
         if not os.path.exists(component_dir):
             print(f"Component directory not found: {component_dir}")
             return {"status": "error", "message": "Component directory not found"}

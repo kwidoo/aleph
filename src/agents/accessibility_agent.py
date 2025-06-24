@@ -12,7 +12,8 @@ class AccessibilityAgent:
     def __init__(self):
         """Initialize accessibility agent"""
         self.c = AgentController()
-        self.results_dir = os.path.expanduser("~/vue-project/tests/accessibility")
+        self.project_dir = os.getenv("VUE_PROJECT_DIR", os.path.expanduser("~/vue-project"))
+        self.results_dir = os.path.join(self.project_dir, "tests", "accessibility")
         os.makedirs(self.results_dir, exist_ok=True)
 
     async def audit_component(self, component_name, props=None, standard="wcag21aa"):
@@ -362,7 +363,7 @@ class AccessibilityAgent:
         print("Starting accessibility monitoring")
 
         # Find all Vue components
-        component_dir = os.path.expanduser("~/vue-project/src/components")
+        component_dir = os.path.join(self.project_dir, "src", "components")
         if not os.path.exists(component_dir):
             print(f"Component directory not found: {component_dir}")
             return {

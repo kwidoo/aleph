@@ -11,7 +11,8 @@ class PerformanceAgent:
     def __init__(self):
         """Initialize performance benchmarking agent"""
         self.c = AgentController()
-        self.results_dir = os.path.expanduser("~/vue-project/tests/performance")
+        self.project_dir = os.getenv("VUE_PROJECT_DIR", os.path.expanduser("~/vue-project"))
+        self.results_dir = os.path.join(self.project_dir, "tests", "performance")
         os.makedirs(self.results_dir, exist_ok=True)
 
     async def benchmark_component(self, component_name, props=None, iterations=50):

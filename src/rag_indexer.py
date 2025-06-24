@@ -37,8 +37,12 @@ def index_codebase(include_docs=None, include_external=None, reindex=False):
     )
 
     # Index code files
+    project_src = os.path.join(
+        os.getenv("VUE_PROJECT_DIR", os.path.expanduser("~/vue-project")),
+        "src"
+    )
     loader = DirectoryLoader(
-        os.path.expanduser("~/vue-project/src"),
+        project_src,
         glob="**/*.{vue,ts,js,md}"
     )
 
@@ -74,7 +78,7 @@ def index_codebase(include_docs=None, include_external=None, reindex=False):
     )
 
     # Index resources using KnowledgeHub
-    knowledge_hub.index_resource("~/vue-project/src", "code")
+    knowledge_hub.index_resource(project_src, "code")
 
     print(f"Indexed {len(chunks)} code/documentation chunks")
 
