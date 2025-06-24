@@ -2,7 +2,14 @@ import subprocess
 import os
 import json
 from pathlib import Path
-from continue.api import Continue
+import importlib
+
+try:
+    Continue = importlib.import_module("continue.api").Continue
+except ModuleNotFoundError:
+    class Continue:
+        async def complete(self, *args, **kwargs):
+            raise RuntimeError("Continue package is not installed")
 from agents.agent_controller import AgentController
 from verification.orchestrator import VerificationPipeline
 
