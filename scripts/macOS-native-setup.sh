@@ -1,5 +1,6 @@
 #!/bin/bash
 # macOS-native-setup.sh
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Verify Homebrew
 if ! command -v brew >/dev/null; then
@@ -55,17 +56,23 @@ fi
 mkdir -p "$HOME/vue-project"
 cd "$HOME/vue-project"
 
-read -p "Clone an existing repo into ~/vue-project? [y/N]: " CLONE_CHOICE
-if [[ $CLONE_CHOICE =~ ^[Yy]$ ]]; then
-  DEFAULT_REPO="https://github.com/yourusername/ai4.git"
-  read -p "Repository to clone (press Enter for $DEFAULT_REPO): " REPO_URL
-  REPO_URL=${REPO_URL:-$DEFAULT_REPO}
-  git clone "$REPO_URL" .
+if [ -d .git ]; then
+  echo "Existing repository detected. Pulling latest changes..."
+  git pull
   npm install
 else
-  npm create vue@latest . -- --typescript --jsx --router --pinia --eslint --vitest --playwright
-  npm install tailwindcss postcss autoprefixer @headlessui/vue @heroicons/vue
-  npx tailwindcss init -p
+  read -p "Clone an existing repo into ~/vue-project? [y/N]: " CLONE_CHOICE
+  if [[ $CLONE_CHOICE =~ ^[Yy]$ ]]; then
+    DEFAULT_REPO="https://github.com/yourusername/ai4.git"
+    read -p "Repository to clone (press Enter for $DEFAULT_REPO): " REPO_URL
+    REPO_URL=${REPO_URL:-$DEFAULT_REPO}
+    git clone "$REPO_URL" .
+    npm install
+  else
+    npm create vue@latest . -- --typescript --jsx --router --pinia --eslint --vitest --playwright
+    npm install tailwindcss postcss autoprefixer @headlessui/vue @heroicons/vue
+    npx tailwindcss init -p
+  fi
 fi
 
 # Create RAG indexing script
@@ -127,9 +134,13 @@ EOL
 chmod +x run_agent.sh
 
 # VSCode extensions
-code --install-extension Continue.continue
-code --install-extension Vue.volar
-code --install-extension bradlc.vscode-tailwindcss
+if command -v code >/dev/null; then
+  code --install-extension Continue.continue
+  code --install-extension Vue.volar
+  code --install-extension bradlc.vscode-tailwindcss
+else
+  echo "VSCode 'code' command not found; skipping extension installation."
+fi
 
 echo "Setup complete!"
 echo "Run ~/launch-ai-env.sh to start the AI environment"
