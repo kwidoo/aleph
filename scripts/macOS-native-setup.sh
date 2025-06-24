@@ -19,7 +19,7 @@ done
 
 # Install Ollama if missing
 if ! command -v ollama >/dev/null; then
-  curl -fsSL https://ollama.ai/install.sh | sh
+  brew install ollama
 else
   echo "Ollama already installed"
 fi
