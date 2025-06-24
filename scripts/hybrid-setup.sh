@@ -37,10 +37,10 @@ EOL
 # Ensure Python virtual environment is used on the server
 cat << 'EOL' > ~/server-setup.sh
 #!/bin/bash
-if [ ! -d "~/ai-env" ]; then
-  python3.11 -m venv ~/ai-env
+if [ ! -d "~/.venv" ]; then
+  python3.11 -m venv ~/.venv
 fi
-source ~/ai-env/bin/activate
+source ~/.venv/bin/activate
 pip install --upgrade pip
 pip install chromadb langchain-community sentence-transformers pypdf2 fastapi uvicorn continue
 EOL
