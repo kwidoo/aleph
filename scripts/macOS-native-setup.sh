@@ -1,6 +1,8 @@
 #!/bin/bash
 # macOS-native-setup.sh
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Work in the directory where the script was invoked
+WORK_DIR="$PWD"
 
 # Verify Homebrew
 if ! command -v brew >/dev/null; then
@@ -41,10 +43,10 @@ echo "Llama 3.1 8B"
 ollama pull llama3.1:8b
 
 # Setup Python virtual environment
-if [ ! -d "$PWD/.venv" ]; then
-  python3.11 -m venv "$PWD/.venv"
+if [ ! -d "$WORK_DIR/.venv" ]; then
+  python3.11 -m venv "$WORK_DIR/.venv"
 fi
-source "$PWD/.venv/bin/activate"
+source "$WORK_DIR/.venv/bin/activate"
 
 # Install Python dependencies
 pip install --upgrade pip
@@ -57,15 +59,16 @@ if ! command -v npm >/dev/null; then
 fi
 
 # Create project directory
-mkdir -p "$PWD/vue-project"
-cd "$PWD/vue-project"
+PROJECT_DIR="$WORK_DIR/vue-project"
+mkdir -p "$PROJECT_DIR"
+cd "$PROJECT_DIR"
 
 if [ -d .git ]; then
   echo "Existing repository detected. Pulling latest changes..."
   git pull
   npm install
 else
-  read -p "Clone an existing repo into ~/vue-project? [y/N]: " CLONE_CHOICE
+  read -p "Clone an existing repo into $PROJECT_DIR? [y/N]: " CLONE_CHOICE
   if [[ $CLONE_CHOICE =~ ^[Yy]$ ]]; then
     DEFAULT_REPO="git@github.com:kwidoo/admin-ui.git"
     read -p "Repository to clone (press Enter for $DEFAULT_REPO): " REPO_URL
@@ -84,27 +87,23 @@ else
   fi
 fi
 
-# Create RAG indexing script
-mkdir -p scripts
-cp "$REPO_ROOT/src/rag_indexer.py" scripts/
-cp "$REPO_ROOT/src/docs_indexer.py" scripts/
-
-# Create launch script
 # Launch script
-cat > "$PWD/launch-env.sh" <<'EOL'
+cat > "$WORK_DIR/launch-env.sh" <<'EOL'
 #!/bin/bash
-source "$PWD/.venv/bin/activate"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export VUE_PROJECT_DIR="$SCRIPT_DIR/vue-project"
+source "$SCRIPT_DIR/.venv/bin/activate"
 ollama serve > /dev/null 2>&1 &
-python -m http.server 8000 --directory "$PWD/vue-project" > /dev/null 2>&1 &
-python "$HOME/vue-project/scripts/rag_indexer.py"
+python -m http.server 8000 --directory "$VUE_PROJECT_DIR" > /dev/null 2>&1 &
+python "$SCRIPT_DIR/src/rag_indexer.py"
 echo "AI environment ready! Open VSCode and configure Continue.dev"
 EOL
 
-chmod +x "$PWD/launch-env.sh"
+chmod +x "$WORK_DIR/launch-env.sh"
 
-# Setup Continue.dev config
-mkdir -p "$HOME/.continue"
-cat > "$HOME/.continue/config.json" <<'EOL'
+# Setup Continue.dev config in working directory
+mkdir -p "$WORK_DIR/.continue"
+cat > "$WORK_DIR/.continue/config.json" <<'EOL'
 {
   "models": [
     {
@@ -127,16 +126,19 @@ cat > "$HOME/.continue/config.json" <<'EOL'
 }
 EOL
 
+
 # Create agent runner script
-cat > run_agent.sh <<'EOL'
+cat > "$WORK_DIR/run_agent.sh" <<'EOL'
 #!/bin/bash
 
-source "$PWD/.venv/bin/activate"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+export VUE_PROJECT_DIR="$SCRIPT_DIR/vue-project"
+source "$SCRIPT_DIR/.venv/bin/activate"
 
 python -m scripts.agents.agent_controller "$@"
 EOL
 
-chmod +x run_agent.sh
+chmod +x "$WORK_DIR/run_agent.sh"
 
 # VSCode extensions
 if command -v code >/dev/null; then
@@ -148,5 +150,5 @@ else
 fi
 
 echo "Setup complete!"
-echo "Run ~/launch-env.sh to start the AI environment"
-echo "CD to ~/vue-project and run npm run dev to start Vue development server"
+echo "Run ./launch-env.sh to start the AI environment"
+echo "CD to ./vue-project and run npm run dev to start Vue development server"
