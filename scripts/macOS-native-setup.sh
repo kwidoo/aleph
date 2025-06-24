@@ -32,8 +32,12 @@ if ! pgrep -f "ollama" >/dev/null; then
 fi
 
 # Download optimized models
-ollama pull deepseek-coder:6.7b-q5_k_m
+echo "Downloading optimized models..."
+echo "Deepseek Coder 6.7B"
+ollama pull deepseek-coder:6.7b-q5_K_M
+echo "Nomic embed text"
 ollama pull nomic-embed-text
+echo "Llama 3.1 8B"
 ollama pull llama3.1:8b
 
 # Setup Python virtual environment
@@ -44,7 +48,7 @@ source "$HOME/.venv/bin/activate"
 
 # Install Python dependencies
 pip install --upgrade pip
-pip install chromadb langchain-community sentence-transformers pypdf2 fastapi uvicorn continue
+pip install chromadb langchain-community sentence-transformers pypdf2 fastapi uvicorn
 
 # Ensure Node and npm are available
 if ! command -v npm >/dev/null; then
@@ -53,8 +57,8 @@ if ! command -v npm >/dev/null; then
 fi
 
 # Create project directory
-mkdir -p "$HOME/vue-project"
-cd "$HOME/vue-project"
+mkdir -p "$PWD/vue-project"
+cd "$PWD/vue-project"
 
 if [ -d .git ]; then
   echo "Existing repository detected. Pulling latest changes..."
@@ -63,15 +67,20 @@ if [ -d .git ]; then
 else
   read -p "Clone an existing repo into ~/vue-project? [y/N]: " CLONE_CHOICE
   if [[ $CLONE_CHOICE =~ ^[Yy]$ ]]; then
-    DEFAULT_REPO="https://github.com/yourusername/ai4.git"
+    DEFAULT_REPO="git@github.com:kwidoo/admin-ui.git"
     read -p "Repository to clone (press Enter for $DEFAULT_REPO): " REPO_URL
     REPO_URL=${REPO_URL:-$DEFAULT_REPO}
     git clone "$REPO_URL" .
     npm install
   else
-    npm create vue@latest . -- --typescript --jsx --router --pinia --eslint --vitest --playwright
-    npm install tailwindcss postcss autoprefixer @headlessui/vue @heroicons/vue
-    npx tailwindcss init -p
+    read -p "Skip project setup and continue? [y/N]: " SKIP_CHOICE
+    if [[ $SKIP_CHOICE =~ ^[Yy]$ ]]; then
+      echo "Skipping project setup. You can set up your project manually later."
+    else
+      npm create vue@latest . -- --typescript --jsx --router --pinia --eslint --vitest --playwright
+      npm install tailwindcss postcss autoprefixer @headlessui/vue @heroicons/vue
+      npx tailwindcss init -p
+    fi
   fi
 fi
 
@@ -82,20 +91,16 @@ cp "$REPO_ROOT/src/docs_indexer.py" scripts/
 
 # Create launch script
 # Launch script
-cat > "$HOME/launch-ai-env.sh" <<'EOL'
+cat > "$PWD/launch-env.sh" <<'EOL'
 #!/bin/bash
-source "$HOME/.venv/bin/activate"
+source "$PWD/.venv/bin/activate"
 ollama serve > /dev/null 2>&1 &
-python -m http.server 8000 --directory "$HOME/vue-project" > /dev/null 2>&1 &
+python -m http.server 8000 --directory "$PWD/vue-project" > /dev/null 2>&1 &
 python "$HOME/vue-project/scripts/rag_indexer.py"
 echo "AI environment ready! Open VSCode and configure Continue.dev"
 EOL
 
-chmod +x "$HOME/launch-ai-env.sh"
-
-# Copy agent files
-mkdir -p scripts/agents
-cp "$REPO_ROOT/src/agents"/* scripts/agents/
+chmod +x "$PWD/launch-env.sh"
 
 # Setup Continue.dev config
 mkdir -p "$HOME/.continue"
@@ -126,7 +131,7 @@ EOL
 cat > run_agent.sh <<'EOL'
 #!/bin/bash
 
-source "$HOME/.venv/bin/activate"
+source "$PWD/.venv/bin/activate"
 
 python -m scripts.agents.agent_controller "$@"
 EOL
@@ -143,5 +148,5 @@ else
 fi
 
 echo "Setup complete!"
-echo "Run ~/launch-ai-env.sh to start the AI environment"
+echo "Run ~/launch-env.sh to start the AI environment"
 echo "CD to ~/vue-project and run npm run dev to start Vue development server"
