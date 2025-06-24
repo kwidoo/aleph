@@ -1,6 +1,13 @@
 import ast
 import subprocess
-from continue.api import Continue
+import importlib
+
+try:
+    Continue = importlib.import_module("continue.api").Continue
+except ModuleNotFoundError:
+    class Continue:
+        async def complete(self, *args, **kwargs):
+            raise RuntimeError("Continue package is not installed")
 
 class SecurityAgent:
     COMPLIANCE_STANDARDS = {

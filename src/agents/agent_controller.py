@@ -1,5 +1,16 @@
-from continue.api import Continue
-from continue.plugins import CodebaseContext
+import importlib
+
+try:
+    Continue = importlib.import_module("continue.api").Continue
+    CodebaseContext = importlib.import_module("continue.plugins").CodebaseContext
+except ModuleNotFoundError:
+    class Continue:
+        async def complete(self, *args, **kwargs):
+            raise RuntimeError("Continue package is not installed")
+
+    class CodebaseContext:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError("Continue package is not installed")
 from verification.orchestrator import VerificationPipeline
 import subprocess
 import os

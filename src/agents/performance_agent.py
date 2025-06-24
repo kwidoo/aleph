@@ -417,10 +417,9 @@ class PerformanceAgent:
                 page.screenshot(path=screenshot_path)
 
                 # Collect performance metrics
-                metrics = page.evaluate("() => ({
-                    layoutShift: performance.getEntriesByType('layout-shift'),
-                    paintTiming: performance.getEntriesByType('paint')
-                })")
+                metrics = page.evaluate(
+                    "() => ({layoutShift: performance.getEntriesByType('layout-shift'), paintTiming: performance.getEntriesByType('paint')})"
+                )
 
                 results[f"{breakpoint['width']}x{breakpoint['height']}"] = metrics
 
@@ -454,10 +453,9 @@ class PerformanceAgent:
                 page.screenshot(path=screenshot_path)
 
                 # Collect performance metrics
-                metrics = page.evaluate("() => ({
-                    layoutShift: performance.getEntriesByType('layout-shift'),
-                    paintTiming: performance.getEntriesByType('paint')
-                })")
+                metrics = page.evaluate(
+                    "() => ({layoutShift: performance.getEntriesByType('layout-shift'), paintTiming: performance.getEntriesByType('paint')})"
+                )
 
                 results[device['name']] = metrics
 

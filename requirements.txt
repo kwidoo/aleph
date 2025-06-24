@@ -18,7 +18,6 @@ requests>=2.31.0
 python-dotenv>=1.0.0
 
 # AI and embeddings
-continue>=0.0.7
 tree-sitter>=0.20.1
 
 # Testing and development
