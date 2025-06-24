@@ -49,6 +49,8 @@ chmod +x scripts/macOS-native-setup.sh
 ./scripts/macOS-native-setup.sh
 ```
 
+This setup script installs **Ollama** via Homebrew, so make sure Homebrew is available in your PATH.
+
 ### 2. Ubuntu Server (A4000) Setup
 
 ```bash
