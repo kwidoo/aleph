@@ -19,9 +19,15 @@ done
 
 # Install Ollama if missing
 if ! command -v ollama >/dev/null; then
-  curl -fsSL https://ollama.ai/install.sh | sh
+  brew install ollama
 else
   echo "Ollama already installed"
+fi
+
+# Ensure Ollama server is running for model downloads
+if ! pgrep -f "ollama" >/dev/null; then
+  ollama serve > /dev/null 2>&1 &
+  sleep 5
 fi
 
 # Download optimized models
