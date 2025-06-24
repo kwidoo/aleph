@@ -15,7 +15,7 @@ fi
 # Reindex codebase
 echo "Reindexing codebase..."
 if [ "$PLATFORM" = "mac" ]; then
-    source ~/ai-env/bin/activate
+    source ~/.venv/bin/activate
     python ~/vue-project/scripts/rag_indexer.py --reindex
 elif [ "$PLATFORM" = "ubuntu" ]; then
     docker compose exec rag-server python /app/src/rag_indexer.py --reindex
