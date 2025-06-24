@@ -1,0 +1,141 @@
+"""
+Agent System Guidance for AI Assistant
+
+This module provides a practical guide for understanding, extending,
+and using the agent-based automation system. Intended for developers
+and AI assistants working with the codebase.
+"""
+
+from pathlib import Path
+from agents.agent_controller import AgentController as BaseAgentController
+
+# 1. Agent System Overview
+# Modular Python agents for automating development, QA, and DevOps
+# workflows in Vue3/TypeScript projects.
+
+class AgentController(BaseAgentController):
+    """
+    Central orchestrator for all agent operations and workflows.
+    """
+    async def __init__(self):
+        super().__init__()
+        # Register agents here:
+        # self.register_agent(DesignToComponentAgent())
+        # self.register_agent(TestAgent())
+        # ...
+
+# 2. Key Agent Classes
+
+class DesignToComponentAgent:
+    """
+    Converts Figma designs to Vue components.
+    """
+    async def convert(self, figma_file: Path, output_dir: Path) -> None:
+        """
+        Converts a Figma design to a Vue3/TypeScript component.
+        """
+        pass
+
+class TestAgent:
+    """
+    Generates, runs, and fixes tests.
+    """
+    async def run_tests(self, target: str) -> None:
+        """
+        Runs tests for the specified component or module.
+        """
+        pass
+
+class CoverageAgent:
+    """
+    Monitors and improves test coverage.
+    """
+    async def analyze(self) -> None:
+        """
+        Generates coverage reports and suggests improvements.
+        """
+        pass
+
+class PerformanceAgent:
+    """
+    Benchmarks and optimizes components.
+    """
+    async def benchmark(self, component: str) -> None:
+        """
+        Runs performance benchmarks on the given component.
+        """
+        pass
+
+class AccessibilityAgent:
+    """
+    Audits and fixes accessibility issues.
+    """
+    async def audit(self, component: str) -> None:
+        """
+        Performs accessibility audit and applies fixes.
+        """
+        pass
+
+class VisualRegressionAgent:
+    """
+    Performs visual regression testing.
+    """
+    async def compare(self, baseline_dir: Path, target_dir: Path) -> None:
+        """
+        Compares snapshots to detect visual regressions.
+        """
+        pass
+
+class SecurityAgent:
+    """
+    Scans for vulnerabilities and compliance.
+    """
+    async def scan(self, path: Path) -> None:
+        """
+        Runs security scans on codebase and dependencies.
+        """
+        pass
+
+class DebugAgent:
+    """
+    Diagnoses and suggests fixes for errors.
+    """
+    async def diagnose(self, logs: str) -> None:
+        """
+        Analyzes error logs and suggests fixes.
+        """
+        pass
+
+# 3. How Agents Work Together
+# - AgentController coordinates tasks by calling specialized agents.
+# - Workflows can be triggered via CLI or programmatically.
+
+# 4. Typical Workflows
+# Component Generation:
+#   figma -> Vue component -> Tests -> QA (visual, performance, accessibility)
+# CI/CD Pipeline:
+#   install -> test -> build -> deploy (with agent-driven automation)
+# Full QA:
+#   visual -> performance -> accessibility checks
+
+# 5. Usage Examples
+
+# CLI:
+# python src/agents/agent_controller.py generate_component ProductCard "['product', 'onAddToCart']"
+# python src/agents/accessibility_agent.py audit UserCard
+# python src/agents/performance_agent.py benchmark UserCard
+
+# Python:
+# from agent_system import AgentController
+# agent = AgentController()
+# report = await agent.full_component_qa("UserProfile")
+
+# 6. Extending the System
+# - Add new agents in src/agents/ and register them in AgentController.
+# - Each agent focuses on a single responsibility with async methods.
+# - Use Continue API for LLM-powered code editing, analysis, suggestions.
+#
+# References:
+# - src/agents/agent_controller.py for orchestration logic.
+# - Individual agent files in src/agents/ for implementation details.
+# - README.md for setup and additional usage.
