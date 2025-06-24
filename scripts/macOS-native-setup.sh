@@ -1,15 +1,28 @@
 #!/bin/bash
 # macOS-native-setup.sh
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+# Verify Homebrew
+if ! command -v brew >/dev/null; then
+  echo "Homebrew is required but not installed. Please install Homebrew from https://brew.sh/"
+  exit 1
+fi
 
-# Install core dependencies
+# Install core dependencies if missing
 brew update
-brew install python@3.11 tree-sitter coreutils
+for pkg in python@3.11 tree-sitter coreutils; do
+  if brew list "$pkg" >/dev/null 2>&1; then
+    echo "$pkg already installed"
+  else
+    brew install "$pkg"
+  fi
+done
 
-# Install Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
+# Install Ollama if missing
+if ! command -v ollama >/dev/null; then
+  brew install ollama
+else
+  echo "Ollama already installed"
+fi
 
 # Download optimized models
 ollama pull deepseek-coder:6.7b-q5_k_m
@@ -25,6 +38,12 @@ source "$HOME/.venv/bin/activate"
 # Install Python dependencies
 pip install --upgrade pip
 pip install chromadb langchain-community sentence-transformers pypdf2 fastapi uvicorn continue
+
+# Ensure Node and npm are available
+if ! command -v npm >/dev/null; then
+  echo "npm is required but not installed. Please install Node.js first."
+  exit 1
+fi
 
 # Create project directory
 mkdir -p "$HOME/vue-project"
